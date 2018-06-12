@@ -24,12 +24,11 @@ install_cmake() {
       exit 1
     fi
 
-    unzip -q $source_path -d $install_path || exit 1
-    cd $install_path/CMake-${version}
+    unzip -q $source_path -d $tmp_download_dir || exit 1
+    cd $tmp_download_dir/CMake-${version}
     ./bootstrap --prefix=$install_path
     make -j $concurrency
     make install
-    rm -rf $install_path/CMake-${version}
   )
 }
 

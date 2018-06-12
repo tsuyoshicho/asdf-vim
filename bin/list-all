@@ -4,10 +4,7 @@
 list_of_versions=$(
   curl -s https://api.github.com/repos/kitware/cmake/tags   \
   | grep -oE "name\": \".{1,15}\","                         \
-  | awk 'gsub("(name\": \")|(\",)", "")'                    \
+  | awk 'gsub("(name\": \")|(\",)|(v)", "")'                \
   | awk '{arr[i++]=$0} END {while (i>0) print arr[--i] }'
 )
-for version in $list_of_versions; do
-    versions+=("$version");
-done
-echo "${versions[@]}";
+echo $list_of_versions
