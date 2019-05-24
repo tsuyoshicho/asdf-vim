@@ -26,10 +26,21 @@ install_cmake() {
 
     unzip -q $source_path -d $tmp_download_dir || exit 1
     cd $tmp_download_dir/CMake-${version}
-    ./bootstrap --prefix=$install_path
+    if [ -d "$QTBINDIR" ]; then
+      PATH=$PATH:$QTBINDIR ./bootstrap --prefix=$install_path --qt-gui
+    else
+      ./bootstrap --prefix=$install_path
+    fi
     make -j $concurrency
     make install
+
+    if [ -d "$install_path/CMake.app/Contents" ]; then
+      mkdir "$install_path/bin"
+      cd "$install_path/bin"
+      ln -s ../CMake.app/Contents/bin/* .
+    fi
   )
+
 }
 
 download_source_file() {

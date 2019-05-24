@@ -1,15 +1,26 @@
 # asdf-cmake [![Build Status](https://travis-ci.org/srivathsanmurali/asdf-cmake.svg?branch=master)](https://travis-ci.org/srivathsanmurali/asdf-cmake)
 
-CMake plugin for [asdf](https://github.com/asdf-vm/asdf) version manager 
+CMake plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Usage
 
 ### Install
+
 The plugin can be install using the following command.
 
 ```
 asdf plugin-add cmake https://github.com/srivathsanmurali/asdf-cmake.git
 asdf install cmake <version>
+```
+
+#### cmake-gui
+
+If you have Qt installed on your machine you can get the `cmake-gui` program built by providing the path to the Qt binary directory in the `QTBINDIR` environment variable when invoking `asdf install cmake`.
+
+For instance, on a Mac with Qt installed using `brew` that would be :
+
+```
+QTBINDIR=/usr/local/opt/qt/bin asdf install cmake <version>
 ```
 
 ### .tool-versions file
