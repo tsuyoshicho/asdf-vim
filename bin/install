@@ -27,9 +27,9 @@ install_cmake() {
     unzip -q $source_path -d $tmp_download_dir || exit 1
     cd $tmp_download_dir/CMake-${version}
     if [ -d "$QTBINDIR" ]; then
-      PATH=$PATH:$QTBINDIR ./bootstrap --prefix=$install_path --qt-gui
+      PATH=$PATH:$QTBINDIR ./bootstrap --prefix=$install_path --qt-gui -- -DCMAKE_BUILD_TYPE=Release
     else
-      ./bootstrap --prefix=$install_path
+      ./bootstrap --prefix=$install_path -- -DCMAKE_BUILD_TYPE=Release
     fi
     make -j $concurrency
     make install
