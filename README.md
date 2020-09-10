@@ -1,37 +1,30 @@
-# asdf-cmake [![Build Status](https://travis-ci.org/srivathsanmurali/asdf-cmake.svg?branch=master)](https://travis-ci.org/srivathsanmurali/asdf-cmake)
+# asdf-vim [![Build Status](https://img.shields.io/github/workflow/status/tsuyoshicho/asdf-vim/build)](https://github.com/tsuyoshicho/asdf-vim)
 
-CMake plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+Vim plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+
+forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/asdf-cmake)
 
 ## Usage
 
 ### Install
 
 The plugin can be install using the following command.
+(*Currently not PRed for [asdf-vm/asdf-plugins](https://github.com/asdf-vm/asdf-plugins) yet*)
 
 ```
-asdf plugin-add cmake https://github.com/srivathsanmurali/asdf-cmake.git
-asdf install cmake <version>
-```
-
-#### cmake-gui
-
-If you have Qt installed on your machine you can get the `cmake-gui` program built by providing the path to the Qt binary directory in the `QTBINDIR` environment variable when invoking `asdf install cmake`.
-
-For instance, on a Mac with Qt installed using `brew` that would be :
-
-```
-QTBINDIR=/usr/local/opt/qt/bin asdf install cmake <version>
+asdf plugin-add vim https://github.com/tsuyoshicho/asdf-vim.git
+asdf install vim <version>
 ```
 
 ### .tool-versions file
 
 You can specify the version to install with a line like so in your .tool-versions file:
-cmake <version>
+vim <version>
 
 ### Using the CLI
 
-You can then set the local/global version to your new version with `asdf local cmake <version>` or `asdf global cmake <version>`.
+You can then set the local/global version to your new version with `asdf local vim <version>` or `asdf global vim <version>`.
 
 ## Use
 
-Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of CMake.
+Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Vim.
