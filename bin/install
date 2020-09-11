@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 
-install_cmake() {
-  local version=$1
-  local install_path=$2
-  local concurrency=$3
+install_vim() {
+  local version
+  local install_path
+  local concurrency
+  version=$1
+  install_path=$2
+  concurrency=$3
 
-  if [ "$TMPDIR" = "" ]; then
-    local tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
+  local tmp_download_dir
+  if [ "${TMPDIR}" = "" ]; then
+    tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
   else
-    local tmp_download_dir=$TMPDIR
+    tmp_download_dir="${TMPDIR}"
   fi
 
   # path to the tar file
-  local source_path=$(get_download_file_path $version $tmp_download_dir)
-  echo $source_path
-  download_source_file $version $source_path
+  local source_path
+  source_path=$(get_download_file_path "${version}" "${tmp_download_dir}")
+  echo "${source_path}"
+  download_source_file "${version}" "${source_path}"
 
   # running this in subshell
   # we don't want to disturb current working dir
@@ -24,41 +29,64 @@ install_cmake() {
       exit 1
     fi
 
-    tar -xvf $source_path -C $tmp_download_dir || exit 1
-    cd $tmp_download_dir/vim-${version}
+    tar -xvf "${source_path}" -C "${tmp_download_dir}" || exit 1
+    cd "${tmp_download_dir}/vim-${version}"  || exit 1
     # configure with $install_path
-    make
+    ./configure --prefix="${install_path}" \
+                --with-features=huge       \
+                --enable-multibyte         \
+                --with-tlib=ncurses        \
+                --enable-cscope            \
+                --enable-terminal          \
+                --with-compiledby=asdf     \
+                --enable-perlinterp        \
+                --enable-rubyinterp        \
+                --enable-python3interp     \
+                --enable-luainterp         \
+                --enable-gui=no            \
+                --without-x
+    make -j "${concurrency}"
     make install
   )
 
+  return
 }
 
 download_source_file() {
-  local version=$1
-  local download_path=$2
-  local download_url=$(get_download_url $version)
+  local version
+  local download_path
+  local download_url
+  version=$1
+  download_path=$2
+  download_url=$(get_download_url "${version}")
 
-  curl -Lo $download_path -C - $download_url
+  curl -Lo "${download_path}" -C - "${download_url}"
+  return
 }
 
 
 get_download_file_path() {
-  local version=$1
-  local tmp_download_dir=$2
+  local version
+  local tmp_download_dir
+  version=$1
+  tmp_download_dir=$2
 
-  echo "$tmp_download_dir/vim-${version}.tar.gz"
+  echo "${tmp_download_dir}/vim-${version}.tar.gz"
+  return
 }
 
 get_download_url() {
-  local version=$1
+  local version
+  version=$1
 
-  if [[ "$version" =~ ^[0-9]+\.* ]] ; then
+  if [[ "${version}" =~ ^[0-9]+\.* ]] ; then
     # if version is a release number, prepend v
     echo "https://github.com/vim/vim/archive/v${version}.tar.gz"
   else
     # otherwise it can be a branch name or commit sha
     echo "https://github.com/vim/vim/archive/${version}.tar.gz"
   fi
+  return
 }
 
-install_cmake $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH $ASDF_CONCURRENCY
+install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY}"
