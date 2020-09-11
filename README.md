@@ -1,18 +1,18 @@
 # asdf-vim ![GitHub Actions Status](https://github.com/tsuyoshicho/asdf-vim/workflows/Main%20workflow/badge.svg?branch=master)
 
-Vim plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+Vim plugin for [asdf](https://github.com/asdf-vm/asdf) version manager.
 
-forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/asdf-cmake)
+Forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/asdf-cmake).
 
 ## Usage
 
 ### Install
 
 The plugin can be install using the following command.
-(*Currently not PRed for [asdf-vm/asdf-plugins](https://github.com/asdf-vm/asdf-plugins) yet*)
 
 ```
-asdf plugin-add vim https://github.com/tsuyoshicho/asdf-vim.git
+asdf plugin-add vim
+# or asdf plugin-add vim https://github.com/tsuyoshicho/asdf-vim.git
 asdf install vim <version>
 ```
 
