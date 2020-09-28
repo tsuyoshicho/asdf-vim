@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
 
-#stolen from https://github.com/rbenv/ruby-build/pull/631/files#diff-fdcfb8a18714b33b07529b7d02b54f1dR942
-function sort_versions() {
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' | \
-    LC_ALL=C sort -V | awk '{print $2}'
-}
-
 # Fetch all tag names, and get only second column. Then remove all unnecessary characters.
 list_of_versions=$(
-  git ls-remote --heads --tags https://github.com/vim/vim.git \
-  | awk '!/({})/ {print $2}'                                  \
-  | awk 'gsub("(refs/tags/)|(v)", "")'                        \
-  | sort_versions                                             \
+  git ls-remote --heads --sort=version:refname --tags https://github.com/vim/vim.git \
+  | awk '!/({})/ {print $2}' | awk 'gsub("(refs/tags/)|(v)", "")'
 )
 
 echo $list_of_versions
