@@ -10,11 +10,16 @@ Forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/as
 
 The plugin can be install using the following command.
 
-```
+```sh
 asdf plugin-add vim
 # or asdf plugin-add vim https://github.com/tsuyoshicho/asdf-vim.git
 asdf install vim <version>
 ```
+
+### Installation Variable
+
+- `ASDF_VIM_TYPE`: vim install type [`tiny` - `huge`]. default `huge`.
+- `ASDF_VIM_CONFIG`: vim install configure arguments. default, see [install](bin/install) script.
 
 ### .tool-versions file
 
