@@ -1,23 +1,15 @@
+---
 name: Main workflow
-
 on:
-  push:
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - '**.md'
   schedule:
     - cron: "5 8/12 * * *"
-
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest]
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: asdf plugin test
         uses: asdf-vm/actions/plugin-test@v1
