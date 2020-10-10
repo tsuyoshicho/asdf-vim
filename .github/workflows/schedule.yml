@@ -1,5 +1,5 @@
 ---
-name: Main workflow
+name: Schedule workflow
 on:
   schedule:
     - cron: "5 8/12 * * *"
