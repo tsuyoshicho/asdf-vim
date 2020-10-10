@@ -1,4 +1,4 @@
-# asdf-vim ![GitHub Actions Status](https://github.com/tsuyoshicho/asdf-vim/workflows/Main%20workflow/badge.svg?branch=master)
+# asdf-vim ![GitHub Actions Status:Commit](https://github.com/tsuyoshicho/asdf-vim/workflows/Commit%20workflow/badge.svg) ![GitHub Actions Status:Schedule](https://github.com/tsuyoshicho/asdf-vim/workflows/Schedule%20workflow/badge.svg)
 
 Vim plugin for [asdf](https://github.com/asdf-vm/asdf) version manager.
 

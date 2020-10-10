@@ -1,5 +1,5 @@
-name: Main workflow
-
+---
+name: Commit workflow
 on:
   push:
     paths-ignore:
@@ -7,21 +7,20 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
-  schedule:
-    - cron: "5 8/12 * * *"
-
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest]
-
+        family: [tiny, normal, huge]
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: asdf plugin test
         uses: asdf-vm/actions/plugin-test@v1
         env:
           GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASDF_VIM_TYPE: ${{ matrix.family }}
+          ASDF_VIM_CONFIG: "--with-tlib=ncurses --with-compiledby=asdf-github-action"
         with:
           command: vim --version
