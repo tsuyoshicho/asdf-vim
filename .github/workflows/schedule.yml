@@ -11,6 +11,11 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: ruby setup (mac)
+        if: ${{ matrix.os }} == 'macOS-latest'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
       - name: asdf plugin test
         uses: asdf-vm/actions/plugin-test@v1
         env:
