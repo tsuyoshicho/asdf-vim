@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: ruby setup (mac)
-        if: ${{ matrix.os }} == 'macOS-latest'
+        if: matrix.os == 'macOS-latest'
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
