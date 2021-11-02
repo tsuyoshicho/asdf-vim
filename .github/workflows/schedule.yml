@@ -3,6 +3,8 @@ name: Schedule workflow
 on:
   schedule:
     - cron: "5 8/12 * * *"
+  workflow_dispatch:
+
 jobs:
   build:
     strategy:
