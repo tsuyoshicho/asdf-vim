@@ -19,6 +19,6 @@ jobs:
         with:
           ruby-version: 2.6
       - name: asdf plugin test
-        uses: asdf-vm/actions/plugin-test@v1
+        uses: asdf-vm/actions/plugin-test@v2
         with:
           command: vim --version
