@@ -6,7 +6,9 @@ install_vim() {
   local concurrency
   version=$1
   install_path=$2
-  concurrency=$3
+  concurrency=$(get_valid_concurrency "$3")
+
+  echo "Install Vim version:${version}, path:${install_path}, build concurrency:${concurrency}"
 
   local default_config="\
 --with-tlib=ncurses \
@@ -98,4 +100,18 @@ get_download_url() {
   return
 }
 
-install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY}"
+get_valid_concurrency() {
+  local concurrency
+  concurrency=$1
+
+  if [[ "${concurrency}" =~ ^[0-9]+$ ]]; then
+    # number
+    echo "${concurrency}"
+  else
+    # is not number
+    echo "1"
+  fi
+  return
+}
+
+install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY:-1}"
