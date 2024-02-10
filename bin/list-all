@@ -13,4 +13,5 @@ list_of_versions=$(
   | sort_versions
 )
 
+# shellcheck disable=SC2086
 echo $list_of_versions
