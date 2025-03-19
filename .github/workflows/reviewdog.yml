@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: true
       - name: Check shellcheck error
-        uses: reviewdog/action-shellcheck@6e0e63d1750d02d761b3df0f2c5ba9f9ac4a9ed7 # v1
+        uses: reviewdog/action-shellcheck@v1.30.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
