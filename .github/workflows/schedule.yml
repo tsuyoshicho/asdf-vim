@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: ruby setup (mac)
         if: matrix.os == 'macOS-latest'
-        uses: ruby/setup-ruby@e5ac7b085f6e63d49c8973eb0c6e04d876b881f1 # v1.230.0
+        uses: ruby/setup-ruby@d8d83c3960843afb664e821fed6be52f37da5267 # v1.231.0
         with:
           ruby-version: 2.6
       - name: asdf plugin test
