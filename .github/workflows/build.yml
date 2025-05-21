@@ -1,12 +1,20 @@
 ---
-name: Commit workflow
+name: build workflow
 on:
+  schedule:
+    - cron: "5 8/12 * * *"
+  workflow_dispatch:
   push:
+    branches:
+      - master
     paths-ignore:
       - '**.md'
   pull_request:
     paths-ignore:
       - '**.md'
+
+env:
+  RUBY_VERSION: 3.4.3
 
 jobs:
   build:
@@ -21,7 +29,7 @@ jobs:
         if: matrix.os == 'macOS-latest'
         uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
         with:
-          ruby-version: 2.6
+          ruby-version: ${{ env.RUBY_VERSION }}
       - name: asdf plugin test
         uses: asdf-vm/actions/plugin-test@05e0d2ed97b598bfce82fd30daf324ae0c4570e6 # v3.0.2
         env:
