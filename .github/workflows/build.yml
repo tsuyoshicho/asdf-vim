@@ -13,9 +13,6 @@ on:
     paths-ignore:
       - '**.md'
 
-env:
-  RUBY_VERSION: 3.4.3
-
 jobs:
   build:
     strategy:
@@ -25,11 +22,8 @@ jobs:
         family: [tiny, normal, huge]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: ruby setup (mac)
-        if: matrix.os == 'macOS-latest'
+      - name: ruby setup
         uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
-        with:
-          ruby-version: ${{ env.RUBY_VERSION }}
       - name: asdf plugin test
         uses: asdf-vm/actions/plugin-test@05e0d2ed97b598bfce82fd30daf324ae0c4570e6 # v3.0.2
         env:
