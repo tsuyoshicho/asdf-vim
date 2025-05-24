@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 install_vim() {
-  local version
+  local install_version
   local install_path
   local concurrency
-  version=$1
+  install_version=$1
   install_path=$2
   concurrency=$(get_valid_concurrency "$3")
 
-  echo "Install Vim version:${version}, path:${install_path}, build concurrency:${concurrency}"
+  echo "Install Vim version:${install_version}, path:${install_path}, build concurrency:${concurrency}"
 
   local default_config="\
 --with-tlib=ncurses \
@@ -23,34 +23,14 @@ install_vim() {
 --enable-gui=no \
 --without-x"
 
-  local type="${ASDF_VIM_TYPE:-huge}"
+  local vim_type="${ASDF_VIM_TYPE:-huge}"
   local config="${ASDF_VIM_CONFIG:-${default_config}}"
-
-  local tmp_download_dir
-  if [ "${TMPDIR}" = "" ]; then
-    tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
-  else
-    tmp_download_dir="${TMPDIR}"
-  fi
-
-  # path to the tar file
-  local source_path
-  source_path=$(get_download_file_path "${version}" "${tmp_download_dir}")
-  echo "${source_path}"
-  download_source_file "${version}" "${source_path}"
 
   # running this in subshell
   # we don't want to disturb current working dir
   (
-    if ! type "tar" &> /dev/null; then
-      echo "ERROR: tar not found"
-      exit 1
-    fi
-
-    tar -xvf "${source_path}" -C "${tmp_download_dir}" || exit 1
-    cd "${tmp_download_dir}/vim-${version}"  || exit 1
-
-    local configure_option="--prefix=${install_path} --with-features=${type} ${config}"
+    cd "${ASDF_DOWNLOAD_PATH}/vim-${install_version}" || exit 1
+    local configure_option="--prefix=${install_path} --with-features=${vim_type} ${config}"
     # shellcheck disable=SC2086
     echo 'configure option: ' $configure_option || exit 1
     # shellcheck disable=SC2086
@@ -60,43 +40,6 @@ install_vim() {
     make install || exit 1
   )
 
-  return
-}
-
-download_source_file() {
-  local version
-  local download_path
-  local download_url
-  version=$1
-  download_path=$2
-  download_url=$(get_download_url "${version}")
-
-  curl -Lo "${download_path}" -C - "${download_url}"
-  return
-}
-
-
-get_download_file_path() {
-  local version
-  local tmp_download_dir
-  version=$1
-  tmp_download_dir=$2
-
-  echo "${tmp_download_dir}/vim-${version}.tar.gz"
-  return
-}
-
-get_download_url() {
-  local version
-  version=$1
-
-  if [[ "${version}" =~ ^[0-9]+\.* ]] ; then
-    # if version is a release number, prepend v
-    echo "https://github.com/vim/vim/archive/v${version}.tar.gz"
-  else
-    # otherwise it can be a branch name or commit sha
-    echo "https://github.com/vim/vim/archive/${version}.tar.gz"
-  fi
   return
 }
 

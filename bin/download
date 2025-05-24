@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+download_vim() {
+  local install_type
+  local version
+  local download_path
+  install_type=$1
+  version=$2
+  download_path=$3
+
+  local tmp_download_dir
+  if [ "${TMPDIR}" = "" ]; then
+    tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
+  else
+    tmp_download_dir="${TMPDIR}"
+  fi
+
+  # path to the tar file
+  if [ "${install_type}" = "version" ]; then
+    local source_path
+    source_path=$(get_download_file_path "${version}" "${tmp_download_dir}")
+    echo "${source_path}"
+    download_source_file "${version}" "${source_path}"
+
+    if ! type "tar" &> /dev/null; then
+      echo "ERROR: tar not found"
+      exit 1
+    fi
+
+    tar -xvf "${source_path}" -C "${download_path}" || exit 1
+  else
+    echo "ERROR: git ref not supported"
+    exit 1
+  fi
+
+  return
+}
+
+download_source_file() {
+  local version
+  local download_path
+  local download_url
+  version=$1
+  download_path=$2
+  download_url=$(get_download_url "${version}")
+
+  curl -Lo "${download_path}" -C - "${download_url}"
+  return
+}
+
+
+get_download_file_path() {
+  local version
+  local tmp_download_dir
+  version=$1
+  tmp_download_dir=$2
+
+  echo "${tmp_download_dir}/vim-${version}.tar.gz"
+  return
+}
+
+get_download_url() {
+  local version
+  version=$1
+
+  if [[ "${version}" =~ ^[0-9]+\.* ]] ; then
+    # if version is a release number, prepend v
+    echo "https://github.com/vim/vim/archive/v${version}.tar.gz"
+  else
+    # otherwise it can be a branch name or commit sha
+    echo "https://github.com/vim/vim/archive/${version}.tar.gz"
+  fi
+  return
+}
+
+download_vim "${ASDF_INSTALL_TYPE}" "${ASDF_INSTALL_VERSION}" "${ASDF_DOWNLOAD_PATH}"
