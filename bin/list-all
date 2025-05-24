@@ -13,5 +13,4 @@ list_all_versions() {
 	list_github_tags
 }
 
-# shellcheck disable=SC2086
-echo $(list_all_versions)
+list_all_versions
