@@ -4,9 +4,11 @@ install_vim() {
   local install_version
   local install_path
   local concurrency
+  local download_path
   install_version=$1
   install_path=$2
   concurrency=$(get_valid_concurrency "$3")
+  download_path=$4
 
   echo "Install Vim version:${install_version}, path:${install_path}, build concurrency:${concurrency}"
 
@@ -29,7 +31,7 @@ install_vim() {
   # running this in subshell
   # we don't want to disturb current working dir
   (
-    cd "${ASDF_DOWNLOAD_PATH}/vim-${install_version}" || exit 1
+    cd "${download_path}/vim-${install_version}" || exit 1
     local configure_option="--prefix=${install_path} --with-features=${vim_type} ${config}"
     # shellcheck disable=SC2086
     echo 'configure option: ' $configure_option || exit 1
@@ -57,4 +59,4 @@ get_valid_concurrency() {
   return
 }
 
-install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY:-1}"
+install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY:-1}" "${ASDF_DOWNLOAD_PATH}"
