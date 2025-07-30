@@ -2,10 +2,9 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for <YOUR TOOL>.
-GH_REPO="<TOOL REPO>"
-TOOL_NAME="<YOUR TOOL>"
-TOOL_TEST="<TOOL CHECK>"
+GH_REPO="https://github.com/vim/vim"
+TOOL_NAME="vim"
+TOOL_TEST="vim --version"
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
