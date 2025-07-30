@@ -10,5 +10,4 @@
 # skip autocrlf,diff enable -> not binary, set -text
 .gitignore     -text
 
-# other config files
-/bin/*         eol=lf
+*              text=auto eol=lf
