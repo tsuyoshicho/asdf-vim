@@ -1,22 +1,37 @@
-name: Build
-
+---
+name: build workflow
 on:
+  schedule:
+    - cron: "5 8/12 * * *"
+  workflow_dispatch:
   push:
     branches:
-      - main
+      - master
+    paths-ignore:
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - '**.md'
 
 jobs:
-  plugin_test:
-    name: asdf plugin test
+  build:
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
+        os: [ubuntu-latest, macOS-latest]
+        family: [tiny, normal, huge]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: asdf_plugin_test
-        uses: asdf-vm/actions/plugin-test@v4
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          command: <TOOL CHECK>
+          submodules: true
+      - name: ruby setup
+        uses: ruby/setup-ruby@2a7b30092b0caf9c046252510f9273b4875f3db9 # v1.254.0
+      - name: asdf plugin test
+        uses: asdf-vm/actions/plugin-test@05e0d2ed97b598bfce82fd30daf324ae0c4570e6 # v3.0.2
+        env:
+          ASDF_VIM_TYPE: ${{ matrix.family }}
+          ASDF_VIM_CONFIG: "--with-tlib=ncurses --with-compiledby=asdf-github-action"
+        with:
+          command: vim --version

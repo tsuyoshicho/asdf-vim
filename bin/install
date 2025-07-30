@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+install_vim() {
+	local install_version
+	local install_path
+	local concurrency
+	local download_path
+	install_version=$1
+	install_path=$2
+	concurrency=$(get_valid_concurrency "$3")
+	download_path=$4
+
+	echo "Install Vim version:${install_version}, path:${install_path}, build concurrency:${concurrency}"
+
+	local default_config="\
+--with-tlib=ncurses \
+--with-compiledby=asdf \
+--enable-multibyte \
+--enable-cscope \
+--enable-terminal \
+--enable-perlinterp \
+--enable-rubyinterp \
+--enable-python3interp \
+--enable-luainterp \
+--enable-gui=no \
+--without-x"
+
+	local vim_type="${ASDF_VIM_TYPE:-huge}"
+	local config="${ASDF_VIM_CONFIG:-${default_config}}"
+
+	# running this in subshell
+	# we don't want to disturb current working dir
+	(
+		cd "${download_path}/vim-${install_version}" || exit 1
+		local configure_option="--prefix=${install_path} --with-features=${vim_type} ${config}"
+		# shellcheck disable=SC2086
+		echo 'configure option: ' $configure_option || exit 1
+		# shellcheck disable=SC2086
+		./configure $configure_option || exit 1
+
+		make -j "${concurrency}" || exit 1
+		make install || exit 1
+	)
+
+	return
+}
+
+get_valid_concurrency() {
+	local concurrency
+	concurrency=$1
+
+	if [[ "${concurrency}" =~ ^[0-9]+$ ]]; then
+		# number
+		echo "${concurrency}"
+	else
+		# is not number
+		echo "1"
+	fi
+	return
+}
+
+install_vim "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}" "${ASDF_CONCURRENCY:-1}" "${ASDF_DOWNLOAD_PATH}"
