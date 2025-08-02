@@ -66,4 +66,4 @@ Contributions of any kind welcome! See the [contributing guide](CONTRIBUTING.md)
 
 ## License
 
-See [LICENSE](LICENSE) © [Tsuyoshi CHO](https://github.com/tsuyoshicho/)
+MIT License: See [LICENSE file](LICENSE.md) © [Tsuyoshi CHO](https://github.com/tsuyoshicho/)
