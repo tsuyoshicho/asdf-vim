@@ -13,6 +13,9 @@ Forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/as
 
 - [Dependencies](#dependencies)
 - [Install](#install)
+  - [Plugin](#plugin)
+  - [vim](#vim)
+    - [Installation Variable](#installation-variable)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -23,7 +26,7 @@ Forked from [srivathsanmurali/asdf-cmake](https://github.com/srivathsanmurali/as
 
 ## Install
 
-Plugin:
+### Plugin:
 
 ```shell
 asdf plugin add vim
@@ -31,9 +34,9 @@ asdf plugin add vim
 asdf plugin add vim https://github.com/tsuyoshicho/asdf-vim.git
 ```
 
-vim:
+### vim:
 
-### Installation Variable
+#### Installation Variable
 
 - `ASDF_VIM_TYPE`: vim install type [`tiny` - `huge`]. default `huge`.
 - `ASDF_VIM_CONFIG`: vim install configure arguments. default, see [install](bin/install) script.
