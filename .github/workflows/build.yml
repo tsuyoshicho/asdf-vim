@@ -30,7 +30,7 @@ jobs:
       - name: ruby setup
         uses: ruby/setup-ruby@0481980f17b760ef6bca5e8c55809102a0af1e5a # v1.263.0
       - name: asdf plugin test
-        uses: asdf-vm/actions/plugin-test@05e0d2ed97b598bfce82fd30daf324ae0c4570e6 # v3.0.2
+        uses: asdf-vm/actions/plugin-test@1902764435ca0dd2f3388eea723a4f92a4eb8302 # v4.0.0
         env:
           ASDF_VIM_TYPE: ${{ matrix.family }}
           ASDF_VIM_CONFIG: "--with-tlib=ncurses --with-compiledby=asdf-github-action"
