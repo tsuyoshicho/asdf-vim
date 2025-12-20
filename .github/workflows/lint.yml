@@ -16,7 +16,7 @@ jobs:
         with:
           submodules: true
       - name: ruby setup
-        uses: ruby/setup-ruby@f8d7259c7a66155a7c4a157a1a10ca601f186594 # v1.271.0
+        uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
       - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4
       - name: lint check
         run:  sh scripts/lint.bash
