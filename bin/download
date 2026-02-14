@@ -48,7 +48,7 @@ download_source_file() {
 
 	# Execute curl with error handling
 	if ! curl -Lo "${download_path}" -C - "${download_url}"; then
-		printf "[asdf-vim] curl failed with exit code $?\n" >&2
+		printf "[asdf-vim] curl failed with exit code %d\n" "$?" >&2
 		rm -f "$download_path"
 		exit 1
 	fi
