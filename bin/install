@@ -10,6 +10,23 @@ install_vim() {
 	concurrency=$(get_valid_concurrency "$3")
 	download_path=$4
 
+	# If install_version contains 'latest', try to resolve it
+	if [[ "${install_version}" == *latest* ]]; then
+		plugin_dir="${ASDF_PLUGIN_PATH:-}"
+		if [[ -z "$plugin_dir" ]]; then
+			plugin_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+		fi
+		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+			local resolved
+			resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || {
+				printf '[asdf-vim] ERROR: failed to resolve latest in install\n' >&2
+				return 1
+			}
+			printf '[asdf-vim] Resolved install version latest -> %s\n' "$resolved" >&2
+			install_version="$resolved"
+		fi
+	fi
+
 	echo "Install Vim version:${install_version}, path:${install_path}, build concurrency:${concurrency}"
 
 	local default_config="\
