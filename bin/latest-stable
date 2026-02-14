@@ -2,11 +2,23 @@
 
 set -euo pipefail
 
-current_script_path=${BASH_SOURCE[0]}
-plugin_dir=$(dirname "$(dirname "$current_script_path")")
+# Determine plugin directory - prefer ASDF_PLUGIN_PATH for stability
+if [ -z "${ASDF_PLUGIN_PATH:-}" ]; then
+	# Fallback: calculate from script path (compatible with both v3 and v4)
+	current_script_path="${BASH_SOURCE[0]}"
+	plugin_dir="$(dirname "$(dirname "$current_script_path")")"
+	plugin_dir="$(cd "$plugin_dir" && pwd)"
+else
+	plugin_dir="${ASDF_PLUGIN_PATH}"
+fi
 
-# shellcheck source=./lib/utils.bash
-. "${plugin_dir}/lib/utils.bash"
+# shellcheck source=../lib/utils.bash
+# shellcheck disable=SC1091
+# Source utils with error handling
+if ! source "${plugin_dir}/lib/utils.bash"; then
+	printf "[asdf-vim] ERROR: Failed to source lib/utils.bash from %s\n" "${plugin_dir}" >&2
+	exit 1
+fi
 
 curl_opts=(-sI)
 
@@ -14,16 +26,46 @@ if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
 
-# curl of REPO/releases/latest is expected to be a 302 to another URL
-# when no releases redirect_url="REPO/releases"
-# when there are releases redirect_url="REPO/releases/tag/v<VERSION>"
-redirect_url=$(curl "${curl_opts[@]}" "$GH_REPO/releases/latest" | sed -n -e "s|^location: *||p" | sed -n -e "s|\r||p")
+# Fetch redirect URL with curl (with error handling)
+redirect_output=$(curl "${curl_opts[@]}" "$GH_REPO/releases/latest" 2>&1) || {
+	printf "[asdf-vim] curl to releases/latest failed\n" >&2
+	# Fallback to list-all if curl fails
+	version="$(list_all_versions | sort_versions | tail -n1 | xargs echo)" || {
+		printf "[asdf-vim] fallback to list-all also failed\n" >&2
+		exit 1
+	}
+	printf "%s\n" "$version"
+	exit 0
+}
+
+# Extract redirect URL
+redirect_url=$(printf "%s\n" "$redirect_output" | sed -n -e "s|^location: *||p" | sed -n -e "s|\r||p")
+
+# Verify redirect URL is not empty
+if [ -z "$redirect_url" ]; then
+	printf "[asdf-vim] could not determine release from releases/latest\n" >&2
+	# Fallback
+	version="$(list_all_versions | sort_versions | tail -n1 | xargs echo)" || exit 1
+	printf "%s\n" "$version"
+	exit 0
+fi
+
 version=
-printf "redirect url: %s\n" "$redirect_url" >&2
 if [[ "$redirect_url" == "$GH_REPO/releases" ]]; then
-	version="$(list_all_versions | sort_versions | tail -n1 | xargs echo)"
+	# Case: no releases
+	version="$(list_all_versions | sort_versions | tail -n1 | xargs echo)" || {
+		printf "[asdf-vim] list-all failed to find latest version\n" >&2
+		exit 1
+	}
 else
+	# Case: release exists
 	version="$(printf "%s\n" "$redirect_url" | sed 's|.*/tag/v\{0,1\}||')"
+fi
+
+# Verify version is not empty
+if [ -z "$version" ]; then
+	printf "[asdf-vim] could not determine latest version\n" >&2
+	exit 1
 fi
 
 printf "%s\n" "$version"

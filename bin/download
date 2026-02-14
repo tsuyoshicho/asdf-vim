@@ -1,5 +1,31 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
+# Determine plugin directory - prefer ASDF_PLUGIN_PATH for stability
+if [ -z "${ASDF_PLUGIN_PATH:-}" ]; then
+	# Fallback: calculate from script path (compatible with both v3 and v4)
+	current_script_path="${BASH_SOURCE[0]}"
+	plugin_dir="$(dirname "$(dirname "$current_script_path")")"
+	plugin_dir="$(cd "$plugin_dir" && pwd)"
+else
+	plugin_dir="${ASDF_PLUGIN_PATH}"
+fi
+
+resolve_latest() {
+	local ver="$1"
+	if [[ "$ver" == *latest* ]]; then
+		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+			local resolved
+			resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || return 1
+			printf '[asdf-vim] Resolved "latest" -> %s\n' "$resolved" >&2
+			printf '%s' "$resolved"
+			return 0
+		fi
+	fi
+	printf '%s' "$ver"
+}
+
 download_vim() {
 	local install_type
 	local version
@@ -8,11 +34,26 @@ download_vim() {
 	version=$2
 	download_path=$3
 
+	# resolve 'latest' to a concrete tag before downloading
+	if [[ "${version}" == *latest* ]]; then
+		local resolved_version
+		resolved_version="$(resolve_latest "${version}")" || {
+			printf "[asdf-vim] ERROR: failed to resolve latest\n" >&2
+			exit 1
+		}
+		version="${resolved_version}"
+	fi
+
 	local tmp_download_dir
-	if [ "${TMPDIR}" = "" ]; then
-		tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
+	# Use TMPDIR when set; otherwise create a temporary directory.
+	# Use safe parameter expansion to avoid 'unbound variable' under set -u.
+	if [ -z "${TMPDIR:-}" ]; then
+		tmp_download_dir=$(mktemp -d) || {
+			printf "[asdf-vim] ERROR: mktemp failed\n" >&2
+			exit 1
+		}
 	else
-		tmp_download_dir="${TMPDIR}"
+		tmp_download_dir="${TMPDIR%/}"
 	fi
 
 	# path to the tar file
@@ -44,7 +85,34 @@ download_source_file() {
 	download_path=$2
 	download_url=$(get_download_url "${version}")
 
-	curl -Lo "${download_path}" -C - "${download_url}"
+	printf "[asdf-vim] Downloading from: %s\n" "$download_url" >&2
+
+	# Execute curl with error handling
+	if ! curl -Lo "${download_path}" -C - "${download_url}"; then
+		printf "[asdf-vim] curl failed with exit code %d\n" "$?" >&2
+		rm -f "$download_path"
+		exit 1
+	fi
+
+	# Verify downloaded file exists
+	if [ ! -f "$download_path" ]; then
+		printf "[asdf-vim] Downloaded file not found: %s\n" "$download_path" >&2
+		exit 1
+	fi
+
+	# Check file size (too small = error response)
+	# Compatible with both GNU stat (Linux) and BSD stat (macOS)
+	local file_size
+	file_size=$(stat -c%s "$download_path" 2>/dev/null || stat -f%z "$download_path" 2>/dev/null || echo "0")
+
+	if [ "$file_size" -lt 1000 ]; then
+		printf "[asdf-vim] Downloaded file too small (%d bytes): %s\n" "$file_size" "$download_path" >&2
+		printf "[asdf-vim] This may indicate an HTTP error response (404, 5xx, etc.)\n" >&2
+		rm -f "$download_path"
+		exit 1
+	fi
+
+	printf "[asdf-vim] Downloaded successfully (%d bytes)\n" "$file_size" >&2
 	return
 }
 
@@ -54,6 +122,8 @@ get_download_file_path() {
 	version=$1
 	tmp_download_dir=$2
 
+	# Remove trailing slash from tmp_download_dir to avoid double slashes
+	tmp_download_dir="${tmp_download_dir%/}"
 	echo "${tmp_download_dir}/vim-${version}.tar.gz"
 	return
 }
@@ -61,6 +131,16 @@ get_download_file_path() {
 get_download_url() {
 	local version
 	version=$1
+	# defensive: if still contains 'latest' try resolver as fallback
+	if [[ "${version}" == *"latest"* ]]; then
+		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+			version="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || true
+		fi
+		if [[ "${version}" == *"latest"* ]]; then
+			printf "[asdf-vim] WARNING: version contains 'latest': %s\n" "$version" >&2
+			printf "[asdf-vim] this suggests version resolution may have failed\n" >&2
+		fi
+	fi
 
 	if [[ "${version}" =~ ^[0-9]+\.* ]]; then
 		# if version is a release number, prepend v
