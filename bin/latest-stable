@@ -12,8 +12,10 @@ else
 	plugin_dir="${ASDF_PLUGIN_PATH}"
 fi
 
+# shellcheck source=../lib/utils.bash
+# shellcheck disable=SC1091
 # Source utils with error handling
-if ! . "${plugin_dir}/lib/utils.bash"; then
+if ! source "${plugin_dir}/lib/utils.bash"; then
 	printf "[asdf-vim] ERROR: Failed to source lib/utils.bash from %s\n" "${plugin_dir}" >&2
 	exit 1
 fi
