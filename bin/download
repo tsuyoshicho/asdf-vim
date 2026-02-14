@@ -60,8 +60,9 @@ download_source_file() {
 	fi
 
 	# Check file size (too small = error response)
+	# Compatible with both GNU stat (Linux) and BSD stat (macOS)
 	local file_size
-	file_size=$(stat -c%s "$download_path" 2>/dev/null || echo "0")
+	file_size=$(stat -c%s "$download_path" 2>/dev/null || stat -f%z "$download_path" 2>/dev/null || echo "0")
 
 	if [ "$file_size" -lt 1000 ]; then
 		printf "[asdf-vim] Downloaded file too small (%d bytes): %s\n" "$file_size" "$download_path" >&2
@@ -80,6 +81,8 @@ get_download_file_path() {
 	version=$1
 	tmp_download_dir=$2
 
+	# Remove trailing slash from tmp_download_dir to avoid double slashes
+	tmp_download_dir="${tmp_download_dir%/}"
 	echo "${tmp_download_dir}/vim-${version}.tar.gz"
 	return
 }
