@@ -21,10 +21,15 @@ download_vim() {
 	download_path=$3
 
 	local tmp_download_dir
-	if [ "${TMPDIR}" = "" ]; then
-		tmp_download_dir=$(mktemp -d -t asdf_vim_build_XXXXXX)
+	# Use TMPDIR when set; otherwise create a temporary directory.
+	# Use safe parameter expansion to avoid 'unbound variable' under set -u.
+	if [ -z "${TMPDIR:-}" ]; then
+		tmp_download_dir=$(mktemp -d) || {
+			printf "[asdf-vim] ERROR: mktemp failed\n" >&2
+			exit 1
+		}
 	else
-		tmp_download_dir="${TMPDIR}"
+		tmp_download_dir="${TMPDIR%/}"
 	fi
 
 	# path to the tar file
