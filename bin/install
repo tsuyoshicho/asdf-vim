@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
+# Calculate plugin_dir for utils.bash source reference
+if [ -z "${ASDF_PLUGIN_PATH:-}" ]; then
+	current_script_path="${BASH_SOURCE[0]}"
+	plugin_dir="$(dirname "$(dirname "$current_script_path")")"
+	plugin_dir="$(cd "$plugin_dir" && pwd)"
+else
+	plugin_dir="${ASDF_PLUGIN_PATH}"
+fi
+
+if ! source "${plugin_dir}/lib/utils.bash"; then
+	printf "[asdf-vim] ERROR: Failed to source lib/utils.bash from %s\n" "${plugin_dir}" >&2
+	exit 1
+fi
+
 install_vim() {
 	local install_version
 	local install_path
@@ -12,10 +28,6 @@ install_vim() {
 
 	# If install_version contains 'latest', try to resolve it
 	if [[ "${install_version}" == *latest* ]]; then
-		plugin_dir="${ASDF_PLUGIN_PATH:-}"
-		if [[ -z "$plugin_dir" ]]; then
-			plugin_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-		fi
 		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
 			local resolved
 			resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || {

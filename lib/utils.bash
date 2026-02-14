@@ -6,6 +6,19 @@ GH_REPO="https://github.com/vim/vim"
 TOOL_NAME="vim"
 TOOL_TEST="vim --version"
 
+# Get the plugin directory - prefer ASDF_PLUGIN_PATH for stability
+# Fallback: calculate from script path (compatible with both v3 and v4)
+get_plugin_dir() {
+	local plugin_dir
+	if [ -n "${ASDF_PLUGIN_PATH:-}" ]; then
+		plugin_dir="${ASDF_PLUGIN_PATH}"
+	else
+		# Calculate from the location of this utils.bash file
+		plugin_dir="$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")")"
+	fi
+	printf '%s' "$plugin_dir"
+}
+
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
 	exit 1
