@@ -44,7 +44,33 @@ download_source_file() {
 	download_path=$2
 	download_url=$(get_download_url "${version}")
 
-	curl -Lo "${download_path}" -C - "${download_url}"
+	printf "[asdf-vim] Downloading from: %s\n" "$download_url" >&2
+
+	# Execute curl with error handling
+	if ! curl -Lo "${download_path}" -C - "${download_url}"; then
+		printf "[asdf-vim] curl failed with exit code $?\n" >&2
+		rm -f "$download_path"
+		exit 1
+	fi
+
+	# Verify downloaded file exists
+	if [ ! -f "$download_path" ]; then
+		printf "[asdf-vim] Downloaded file not found: %s\n" "$download_path" >&2
+		exit 1
+	fi
+
+	# Check file size (too small = error response)
+	local file_size
+	file_size=$(stat -c%s "$download_path" 2>/dev/null || echo "0")
+
+	if [ "$file_size" -lt 1000 ]; then
+		printf "[asdf-vim] Downloaded file too small (%d bytes): %s\n" "$file_size" "$download_path" >&2
+		printf "[asdf-vim] This may indicate an HTTP error response (404, 5xx, etc.)\n" >&2
+		rm -f "$download_path"
+		exit 1
+	fi
+
+	printf "[asdf-vim] Downloaded successfully (%d bytes)\n" "$file_size" >&2
 	return
 }
 
@@ -61,6 +87,13 @@ get_download_file_path() {
 get_download_url() {
 	local version
 	version=$1
+
+	# version が "latest" を含む場合は警告
+	# Warn if version contains "latest"
+	if [[ "${version}" == *"latest"* ]]; then
+		printf "[asdf-vim] WARNING: version contains 'latest': %s\n" "$version" >&2
+		printf "[asdf-vim] this suggests version resolution may have failed\n" >&2
+	fi
 
 	if [[ "${version}" =~ ^[0-9]+\.* ]]; then
 		# if version is a release number, prepend v

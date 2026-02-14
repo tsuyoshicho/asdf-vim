@@ -8,4 +8,17 @@ plugin_dir=$(dirname "$(dirname "$current_script_path")")
 # shellcheck source=./lib/utils.bash
 source "${plugin_dir}/lib/utils.bash"
 
-list_all_versions | sort_versions | xargs echo
+# Execute list-all with error handling
+versions=$(list_all_versions 2>&1) || {
+	printf "[asdf-vim] list-all failed: %s\n" "$versions" >&2
+	exit 1
+}
+
+# Verify output is not empty
+if [ -z "$versions" ]; then
+	printf "[asdf-vim] list-all returned no versions\n" >&2
+	exit 1
+fi
+
+# Sort and output
+echo "$versions" | sort_versions | xargs echo
