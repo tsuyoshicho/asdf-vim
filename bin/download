@@ -12,6 +12,20 @@ else
 	plugin_dir="${ASDF_PLUGIN_PATH}"
 fi
 
+	resolve_latest() {
+		local ver="$1"
+		if [[ "$ver" == *latest* ]]; then
+			if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+				local resolved
+				resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || return 1
+				printf '[asdf-vim] Resolved "latest" -> %s\n' "$resolved" >&2
+				printf '%s' "$resolved"
+				return 0
+			fi
+		fi
+		printf '%s' "$ver"
+	}
+
 download_vim() {
 	local install_type
 	local version
@@ -19,6 +33,16 @@ download_vim() {
 	install_type=$1
 	version=$2
 	download_path=$3
+
+	# resolve 'latest' to a concrete tag before downloading
+	if [[ "${version}" == *latest* ]]; then
+		local resolved_version
+		resolved_version="$(resolve_latest "${version}")" || {
+			printf "[asdf-vim] ERROR: failed to resolve latest\n" >&2
+			exit 1
+		}
+		version="${resolved_version}"
+	fi
 
 	local tmp_download_dir
 	# Use TMPDIR when set; otherwise create a temporary directory.
@@ -107,12 +131,15 @@ get_download_file_path() {
 get_download_url() {
 	local version
 	version=$1
-
-	# version が "latest" を含む場合は警告
-	# Warn if version contains "latest"
+	# defensive: if still contains 'latest' try resolver as fallback
 	if [[ "${version}" == *"latest"* ]]; then
-		printf "[asdf-vim] WARNING: version contains 'latest': %s\n" "$version" >&2
-		printf "[asdf-vim] this suggests version resolution may have failed\n" >&2
+		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+			version="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || true
+		fi
+		if [[ "${version}" == *"latest"* ]]; then
+			printf "[asdf-vim] WARNING: version contains 'latest': %s\n" "$version" >&2
+			printf "[asdf-vim] this suggests version resolution may have failed\n" >&2
+		fi
 	fi
 
 	if [[ "${version}" =~ ^[0-9]+\.* ]]; then
