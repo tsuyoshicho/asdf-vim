@@ -2,11 +2,20 @@
 
 set -euo pipefail
 
-current_script_path=${BASH_SOURCE[0]}
-plugin_dir=$(dirname "$(dirname "$current_script_path")")
+# Determine plugin directory - prefer ASDF_PLUGIN_PATH for stability
+if [ -z "${ASDF_PLUGIN_PATH:-}" ]; then
+	# Fallback: calculate from script path (compatible with both v3 and v4)
+	current_script_path="${BASH_SOURCE[0]}"
+	plugin_dir="$(cd "$(dirname "$(dirname "$current_script_path"))" && pwd)"
+else
+	plugin_dir="${ASDF_PLUGIN_PATH}"
+fi
 
-# shellcheck source=./lib/utils.bash
-source "${plugin_dir}/lib/utils.bash"
+# Source utils with error handling
+if ! source "${plugin_dir}/lib/utils.bash"; then
+	printf "[asdf-vim] ERROR: Failed to source lib/utils.bash from %s\n" "${plugin_dir}" >&2
+	exit 1
+fi
 
 # Execute list-all with error handling
 versions=$(list_all_versions 2>&1) || {
