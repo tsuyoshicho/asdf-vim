@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 install_vim() {
 	local install_version
 	local install_path

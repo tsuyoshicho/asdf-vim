@@ -12,19 +12,19 @@ else
 	plugin_dir="${ASDF_PLUGIN_PATH}"
 fi
 
-	resolve_latest() {
-		local ver="$1"
-		if [[ "$ver" == *latest* ]]; then
-			if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
-				local resolved
-				resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || return 1
-				printf '[asdf-vim] Resolved "latest" -> %s\n' "$resolved" >&2
-				printf '%s' "$resolved"
-				return 0
-			fi
+resolve_latest() {
+	local ver="$1"
+	if [[ "$ver" == *latest* ]]; then
+		if [[ -x "${plugin_dir}/bin/latest-stable" ]]; then
+			local resolved
+			resolved="$("${plugin_dir}/bin/latest-stable" 2>/dev/null)" || return 1
+			printf '[asdf-vim] Resolved "latest" -> %s\n' "$resolved" >&2
+			printf '%s' "$resolved"
+			return 0
 		fi
-		printf '%s' "$ver"
-	}
+	fi
+	printf '%s' "$ver"
+}
 
 download_vim() {
 	local install_type
