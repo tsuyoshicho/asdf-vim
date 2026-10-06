@@ -40,6 +40,17 @@ asdf plugin add vim https://github.com/tsuyoshicho/asdf-vim.git
 
 - `ASDF_VIM_TYPE`: vim install type [`tiny` - `huge`]. default `huge`.
 - `ASDF_VIM_CONFIG`: vim install configure arguments. default, see [install](bin/install) script.
+- `ASDF_VIM_GUI`: optional Vim GUI selection passed as `--enable-gui=...`. If unset and `ASDF_VIM_CONFIG` does not specify a GUI, Vim automatically detects available GUI support. Supported values are `auto`, `no`, `gtk2`, `gnome2`, `gtk3`, `gtk4`, `motif`, `haiku`, `photon`, and `carbon`.
+
+Install the required GUI development libraries before building to enable a GUI. For example:
+
+```shell
+ASDF_VIM_GUI=gtk3 asdf install vim latest
+```
+
+The `+image` feature requires a `huge` build and Pixman development files discoverable through `pkg-config` as `pixman-1`. Vim detects and links Pixman automatically.
+
+`ASDF_VIM_CONFIG` replaces the default configure arguments. When `ASDF_VIM_GUI` is set, its value takes precedence over any GUI selection in `ASDF_VIM_CONFIG`.
 
 ```shell
 # Show all installable versions

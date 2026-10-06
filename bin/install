@@ -50,18 +50,28 @@ install_vim() {
 --enable-perlinterp \
 --enable-rubyinterp \
 --enable-python3interp \
---enable-luainterp \
---enable-gui=no \
---without-x"
+--enable-luainterp"
 
 	local vim_type="${ASDF_VIM_TYPE:-huge}"
 	local config="${ASDF_VIM_CONFIG:-${default_config}}"
+	local gui_option=""
+	if [[ -n "${ASDF_VIM_GUI:-}" ]]; then
+		case "${ASDF_VIM_GUI}" in
+		auto | no | gtk2 | gnome2 | gtk3 | gtk4 | motif | haiku | photon | carbon)
+			gui_option="--enable-gui=${ASDF_VIM_GUI}"
+			;;
+		*)
+			printf '[asdf-vim] ERROR: unsupported ASDF_VIM_GUI value: %s\n' "${ASDF_VIM_GUI}" >&2
+			return 1
+			;;
+		esac
+	fi
 
 	# running this in subshell
 	# we don't want to disturb current working dir
 	(
 		cd "${download_path}/vim-${install_version}" || exit 1
-		local configure_option="--prefix=${install_path} --with-features=${vim_type} ${config}"
+		local configure_option="--prefix=${install_path} --with-features=${vim_type} ${config} ${gui_option}"
 		# shellcheck disable=SC2086
 		echo 'configure option: ' $configure_option || exit 1
 		# shellcheck disable=SC2086
