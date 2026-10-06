@@ -33,6 +33,37 @@ jobs:
         uses: asdf-vm/actions/plugin-test@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         env:
           ASDF_VIM_TYPE: ${{ matrix.family }}
-          ASDF_VIM_CONFIG: "--with-tlib=ncurses --with-compiledby=asdf-github-action"
         with:
           command: vim --version
+
+  image:
+    name: image (${{ matrix.gui }})
+    strategy:
+      fail-fast: false
+      matrix:
+        gui: [no, gtk3]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+      - name: Install Pixman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpixman-1-dev
+      - name: Install GTK3
+        if: matrix.gui == 'gtk3'
+        run: sudo apt-get install -y libgtk-3-dev
+      - name: asdf plugin test
+        uses: asdf-vm/actions/plugin-test@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+        env:
+          ASDF_VIM_TYPE: huge
+          ASDF_VIM_GUI: ${{ matrix.gui }}
+          ASDF_VIM_CONFIG: >-
+            --with-compiledby=asdf-github-action
+            --enable-pixman
+            --enable-fail-if-missing
+            ${{ matrix.gui == 'no' && '--without-x' || '--disable-gtktest' }}
+        with:
+          command: vim --version | grep -F '+image'
