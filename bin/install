@@ -41,16 +41,7 @@ install_vim() {
 
 	echo "Install Vim version:${install_version}, path:${install_path}, build concurrency:${concurrency}"
 
-	local default_config="\
---with-tlib=ncurses \
---with-compiledby=asdf \
---enable-multibyte \
---enable-cscope \
---enable-terminal \
---enable-perlinterp \
---enable-rubyinterp \
---enable-python3interp \
---enable-luainterp"
+	local default_config="--with-compiledby=asdf"
 
 	local vim_type="${ASDF_VIM_TYPE:-huge}"
 	local config="${ASDF_VIM_CONFIG:-${default_config}}"

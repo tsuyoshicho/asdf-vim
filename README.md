@@ -50,7 +50,7 @@ ASDF_VIM_GUI=gtk3 asdf install vim latest
 
 The `+image` feature requires a `huge` build and Pixman development files discoverable through `pkg-config` as `pixman-1`. Vim detects and links Pixman automatically.
 
-`ASDF_VIM_CONFIG` replaces the default configure arguments. When `ASDF_VIM_GUI` is set, its value takes precedence over any GUI selection in `ASDF_VIM_CONFIG`.
+The default configure arguments contain only `--with-compiledby=asdf`. Setting `ASDF_VIM_CONFIG` replaces those defaults. When `ASDF_VIM_GUI` is set, its value takes precedence over any GUI selection in `ASDF_VIM_CONFIG`.
 
 ```shell
 # Show all installable versions
